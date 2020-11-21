@@ -21,22 +21,24 @@ con.connect(function(err) {
 });
 
 client.on('message', msg => {
-  if (msg.content.startsWith("/create group")) {
+  if (msg.content.startsWith("/create ")) {
     var code = getRandomText(6);
-    var msg_loppu = msg.content.substr("/create group ".length);
+    var msg_loppu = msg.content.substr("/create ".length);
     const args = msg_loppu.trim().split(" ");
-    msg.guild.channels.create(args[0], { type: 'voice' }).then(result => {
-      result.join()
-    })
+    if (args[0].toLowerCase() == "create") {
+      msg.guild.channels.create(args[1], { type: 'voice' }).then((channel) => {
+        ChannelID = channel.id
+        var sql = `INSERT INTO \`Channels\` (\`Name\`, \`Id\`, \`User_id\`, \`Code\`) VALUES ('${args[1]}', '${ChannelID}', '${msg.author.id}', '${code}')`;
 
-    var sql = `INSERT INTO \`Channels\` (\`Name\`, \`Id\`, \`User_id\`, \`Code\`) VALUES ('${args[0]}', '${}', '${msg.author.id}', '${code}')`;
+        con.query(sql, (err, result) => {
+          if (err) throw err;
+        });
 
-    con.query(sql, (err, result) => {
-      if (err) throw err;
-    });
-    
-    msg.author.send("Your channel has been created with the code: " + code);
+        msg.author.send("Your channel has been created with the code: " + code);
+      })
+    }
   }
+
 
 });
 
