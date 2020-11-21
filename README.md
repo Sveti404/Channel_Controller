@@ -12,7 +12,7 @@ You need the following:
 
 Once you have got the stuff open `command promt` and open the directory you downloaded the source code into. Then you need to to type the command `npm install` and it will install all the packages you will need.
 
-After that you need to open the file `config_template.json` and fill in all the fields with your database info and bot token. Then you need to save it and rename it `config.json`. Then just go into the command promt with the folder open where the bot is and run `node main.js` After that the bot should be working.
+After that you need to open the file `config_template.json` and fill in all the fields with your database info and bot token. Then you need to save it and rename it to `config.json`. Then just go into the command promt with the folder open where the bot is and run `node main.js` After that the bot should be working.
 
 **Bug Report**
 ---
