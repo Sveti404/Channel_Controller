@@ -45,9 +45,10 @@ client.on('message', msg => {
       ]}).then((channel) => {
         ChannelID = channel.id
         // Mysql
-        var sql = `INSERT INTO \`Channels\` (\`Name\`, \`Id\`, \`User_id\`, \`Code\`) VALUES ('${args[1]}', '${ChannelID}', '${msg.author.id}', '${code}')`;
+        let sql = `INSERT INTO Channels (Naem, Id, User_id, Code) VALUES (?, ?, ?, ?)`;
+        let values = [args[1], ChannelID, msg.author.id, code];
 
-        con.query(sql, (err, result) => {
+        con.query(sql, values, (err, result) => {
           if (err) throw err;
         });
 
@@ -56,8 +57,10 @@ client.on('message', msg => {
     }
     // Joining groups
     if (args[0].toLowerCase() == "join") {
-      var sql = `SELECT (\`Id\`) FROM \`Channels\` WHERE (\`Code\`) = '${args[1]}'`;
-      con.query(sql, (err, result) => {
+      let sql = `SELECT Id FROM Channels WHERE Code = ?`;
+      let values = [args[1]];
+      
+      con.query(sql, values, (err, result) => {
         if (err) throw err;
         console.log(result)
         var channel = msg.guild.channels.cache.get(result[0].Id);
