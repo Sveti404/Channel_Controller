@@ -45,9 +45,10 @@ client.on('message', msg => {
       ]}).then((channel) => {
         ChannelID = channel.id
         // Mysql
-        var sql = `INSERT INTO \`Channels\` (\`Name\`, \`Id\`, \`User_id\`, \`Code\`, \`Guild_id\`) VALUES ('${args[1]}', '${ChannelID}', '${msg.author.id}', '${code}', '${msg.guild.id}')`;
+        let sql = `INSERT INTO Channels (Name, Id, User_id, Code, Guild_id) VALUES (?, ?, ?, ?, ?)`;
+        let values = [args[1], ChannelID, msg.author.id, code, msg.guild.id];
 
-        con.query(sql, (err, result) => {
+        con.query(sql, values, (err, result) => {
           if (err) throw err;
         });
 
@@ -56,24 +57,21 @@ client.on('message', msg => {
     }
     // Joining groups
     if (args[0].toLowerCase() == "join") {
-      var sql = `SELECT (\`Id\`) FROM \`Channels\` WHERE (\`Code\`) = '${args[1]}'`;
-      con.query(sql, (err, result) => {
+      let sql = `SELECT Id FROM Channels WHERE Code = ?`;
+      let values = [args[1]];
+
+      con.query(sql, values, (err, result) => {
         if (err) throw err;
-        var channel = msg.guild.channels.cache.get(result[0].Id);
-        if (channel != null) {
-          channel.overwritePermissions([
-            {
-              id: msg.author.id,
-              allow: ['VIEW_CHANNEL', 'CONNECT'],
-            },
-            {
-              id: msg.guild.id,
-              deny: ['CONNECT', 'VIEW_CHANNEL'],
-            },
-          ])
-        } else {
-          msg.channel.send('A group with that code wasn\'t found please check that you typed the code correctly, if you are sure it\'s a bug please report it to me (sveti404#3122)')
-        }
+        if (result[0] != undefined) {
+          var channel = msg.guild.channels.cache.get(result[0].Id);
+          if (channel != null) {
+            channel.updateOverwrite(msg.author, { VIEW_CHANNEL: true , CONNECT: true});
+            msg.delete();
+          }
+            
+      } else {
+        msg.channel.send('A group with that code wasn\'t found please check that you typed the code correctly, if you are sure it\'s a bug please report it to me (sveti404#3122)');
+      }
       });
     }
   }
@@ -95,6 +93,30 @@ client.on('message', msg => {
     msg.author.send(Embed);
 
 
+  }
+
+  // Database and Discord cleanup command (will be removed once development is done)
+  if (msg.content.startsWith("/cleanup ")) {
+    if (msg.author.id == '407975103629099008') {
+      var msg_loppu = msg.content.substr("/cleanup ".length);
+      const args = msg_loppu.trim().split(" ");
+      if (args[0] == "discord") {
+        var channels = msg.guild.channels.cache.filter(ch => ch.type === "voice");
+        var size = channels.size;
+        channels.forEach(element => {
+          element.delete();
+        });
+        msg.channel.send('Kanavia poistettu: ' + size);
+
+      }
+      if (args[0] == "database") {
+        let sql = `DELETE FROM Channels`;
+        con.query(sql, (err, result) => {
+          if (err) throw err;
+          msg.channel.send("Database tyhjennetty")
+        });
+      }
+    }
   }
 
 
