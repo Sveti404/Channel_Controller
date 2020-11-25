@@ -45,13 +45,8 @@ client.on('message', msg => {
       ]}).then((channel) => {
         ChannelID = channel.id
         // Mysql
-<<<<<<< HEAD
         let sql = `INSERT INTO Channels (Name, Id, User_id, Code, Guild_id) VALUES (?, ?, ?, ?, ?)`;
         let values = [args[1], ChannelID, msg.author.id, code, msg.guild.id];
-=======
-        let sql = `INSERT INTO Channels (Naem, Id, User_id, Code) VALUES (?, ?, ?, ?)`;
-        let values = [args[1], ChannelID, msg.author.id, code];
->>>>>>> 07ad5835fe3879b2ac003dbc63703e628d66f2ac
 
         con.query(sql, values, (err, result) => {
           if (err) throw err;
@@ -64,11 +59,6 @@ client.on('message', msg => {
     if (args[0].toLowerCase() == "join") {
       let sql = `SELECT Id FROM Channels WHERE Code = ?`;
       let values = [args[1]];
-<<<<<<< HEAD
-
-=======
-      
->>>>>>> 07ad5835fe3879b2ac003dbc63703e628d66f2ac
       con.query(sql, values, (err, result) => {
         if (err) throw err;
         if (result[0] != undefined) {
