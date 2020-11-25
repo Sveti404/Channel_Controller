@@ -8,9 +8,12 @@ You need the following:
 * Some kind of text editor
 * Nodejs
 * Source code
-* Access to command promt
+* Git installed on your computer
+* Access to command prompt
 
-Once you have got the stuff open `command promt` and open the directory you downloaded the source code into. Then you need to to type the command `npm install` and it will install all the packages you will need.
+Clone this repository to your local computer with command `git clone https://github.com/Sveti404/Channel_Controller.git`. 
+
+Once you have got the stuff open `command prompt` and open the directory you downloaded the source code into. Then you need to to type the command `npm install` and it will install all the packages you will need.
 
 After that you need to open the file `config_template.json` and fill in all the fields with your database info and bot token. Then you need to save it and rename it to `config.json`. Then just go into the command promt with the folder open where the bot is and run `node main.js` After that the bot should be working.
 
