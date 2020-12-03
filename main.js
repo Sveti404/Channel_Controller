@@ -85,7 +85,6 @@ client.on('message', msg => {
     if (args[0].toLowerCase() == "join" && msg.channel.type != 'dm') {
       let sql = `SELECT Id FROM Channels WHERE Code = ?`;
       let values = [args[1]];
-
       con.query(sql, values, (err, result) => {
         if (err) throw err;
         if (result[0] != undefined) {
