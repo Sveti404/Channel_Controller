@@ -18,6 +18,7 @@ client.on('ready', () => {
   client.user.setPresence({ activity: { name: 'Controlling channels' }, status: 'online' }).catch(console.error);
 });
 
+
 // Connecting to the database
 con.connect(function(err) {
   if (err) throw err;
@@ -26,12 +27,37 @@ con.connect(function(err) {
 
 client.on('message', msg => {
   // group commands
+  if (msg.channel.type == 'dm') {
+    console.log("Dm message got")
+    if (msg.content.startsWith("/group ")) {
+      var msg_loppu = msg.content.substr("/group ".length);
+      const args = msg_loppu.trim().split(" ");
+      if (args[0] == "join") {
+        let sql = `SELECT Id, Guild_id FROM Channels WHERE Code = ?`;
+        let values = [args[1]];
+  
+        con.query(sql, values, (err, result) => {
+          if (err) throw err;
+          if (result[0] != undefined) {
+            var channel = client.guilds.cache.get(result[0].Guild_id).channels.cache.get(result[0].Id);
+            if (channel != null) {
+              channel.updateOverwrite(msg.author, { VIEW_CHANNEL: true , CONNECT: true});
+            }
+              
+        } else {
+          msg.channel.send('A group with that code wasn\'t found please check that you typed the code correctly, if you are sure it\'s a bug please report it to me (sveti404#3122)');
+        }
+        });
+      }
+    }
+
+  };
   if (msg.content.startsWith("/group ")) {
     var code = getRandomText(6);
     var msg_loppu = msg.content.substr("/group ".length);
     const args = msg_loppu.trim().split(" ");
     // Creating groups
-    if (args[0].toLowerCase() == "create") {
+    if (args[0] == "create") {
       msg.guild.channels.create(args[1], { type: 'voice', permissionOverwrites: [
         {
           id: msg.author.id,
@@ -45,13 +71,8 @@ client.on('message', msg => {
       ]}).then((channel) => {
         ChannelID = channel.id
         // Mysql
-<<<<<<< HEAD
         let sql = `INSERT INTO Channels (Name, Id, User_id, Code, Guild_id) VALUES (?, ?, ?, ?, ?)`;
         let values = [args[1], ChannelID, msg.author.id, code, msg.guild.id];
-=======
-        let sql = `INSERT INTO Channels (Naem, Id, User_id, Code) VALUES (?, ?, ?, ?)`;
-        let values = [args[1], ChannelID, msg.author.id, code];
->>>>>>> 07ad5835fe3879b2ac003dbc63703e628d66f2ac
 
         con.query(sql, values, (err, result) => {
           if (err) throw err;
@@ -61,22 +82,18 @@ client.on('message', msg => {
       })
     }
     // Joining groups
-    if (args[0].toLowerCase() == "join") {
+    if (args[0].toLowerCase() == "join" && msg.channel.type != 'dm') {
       let sql = `SELECT Id FROM Channels WHERE Code = ?`;
       let values = [args[1]];
-<<<<<<< HEAD
 
-=======
-      
->>>>>>> 07ad5835fe3879b2ac003dbc63703e628d66f2ac
       con.query(sql, values, (err, result) => {
         if (err) throw err;
         if (result[0] != undefined) {
           var channel = msg.guild.channels.cache.get(result[0].Id);
           if (channel != null) {
             channel.updateOverwrite(msg.author, { VIEW_CHANNEL: true , CONNECT: true});
-            msg.delete();
           }
+          msg.delete();
             
       } else {
         msg.channel.send('A group with that code wasn\'t found please check that you typed the code correctly, if you are sure it\'s a bug please report it to me (sveti404#3122)');
@@ -115,14 +132,14 @@ client.on('message', msg => {
         channels.forEach(element => {
           element.delete();
         });
-        msg.channel.send('Kanavia poistettu: ' + size);
+        msg.channel.send('Channels deleted: ' + size);
 
       }
       if (args[0] == "database") {
         let sql = `DELETE FROM Channels`;
         con.query(sql, (err, result) => {
           if (err) throw err;
-          msg.channel.send("Database tyhjennetty")
+          msg.channel.send("Database Emptied")
         });
       }
     }
@@ -136,8 +153,13 @@ client.on('message', msg => {
 // Creating code function
 function getRandomText(length) {
   var charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".match(/./g);
-  var text = "";
+  var text = ""
   for (var i = 0; i < length; i++) text += charset[Math.floor(Math.random() * charset.length)];
+  let sql = `SELECT * FROM Channels WHERE Code = ?`;
+  let values = [text];
+  con.query(sql, values, (err, result) => {
+    if (err) throw err;
+  });
   return text;
 }
 
