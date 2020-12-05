@@ -12,12 +12,31 @@ var con = mysql.createConnection({
   database: config.database.database
 });
 
+function Check_channels() {
+  let sql = `SELECT Id, Guild_id FROM Channels`;
+  con.query(sql, (err, result) => {
+    if (err) throw err;
+    for (i = 0; i < result.length; i++) {
+      var id = result[i].Id;
+      var Guild_id = result[i].Guild_id;
+      var channel = client.guilds.cache.get(Guild_id).channels.cache.get(id);
+      if (channel.members.size == 0) {
+        let sql = `DELETE FROM Channels WHERE Id = ${channel.id}`;
+        con.query(sql, (err, result) => {
+          if (err) throw err;
+        });
+        channel.delete();
+      }
+    }
+  });
+}
+
 // Setting presence
 client.on('ready', () => {
   console.log("Logged in as " + client.user.tag);
   client.user.setPresence({ activity: { name: 'Controlling channels' }, status: 'online' }).catch(console.error);
+  setInterval(Check_channels, 900000);
 });
-
 
 // Connecting to the database
 con.connect(function(err) {
@@ -28,7 +47,6 @@ con.connect(function(err) {
 client.on('message', msg => {
   // group commands
   if (msg.channel.type == 'dm') {
-    console.log("Dm message got")
     if (msg.content.startsWith("/group ")) {
       var msg_loppu = msg.content.substr("/group ".length);
       const args = msg_loppu.trim().split(" ");
@@ -78,6 +96,7 @@ client.on('message', msg => {
           if (err) throw err;
         });
 
+
         msg.author.send("Your channel has been created with the code: " + code);
       })
     }
@@ -109,8 +128,8 @@ client.on('message', msg => {
       .setColor('#fffff')
       .setTitle('help')
       .addFields(
-        { name: '/group (create) (name)', value: 'Creates a group with the name you specified and sends a code in your dm' },
-        { name: '/group (join) (code)', value: 'Join a group with the code you specified (if one exists)' },
+        { name: '/group create (name)', value: 'Creates a group with the name you specified and sends a code in your dm' },
+        { name: '/group join (code)', value: 'Join a group with the code you specified (if one exists)' },
         { name: '/help', value: 'Sends this embed' },
       )
       .setFooter('Created by sveti404#3122');
@@ -143,9 +162,6 @@ client.on('message', msg => {
       }
     }
   }
-
-
-
 });
 
 
@@ -161,9 +177,6 @@ function getRandomText(length) {
   });
   return text;
 }
-
-
-
 
 // Logging into the bot
 client.login(config.token);
