@@ -51,7 +51,7 @@ client.on('message', msg => {
       var msg_loppu = msg.content.substr("/group ".length);
       const args = msg_loppu.trim().split(" ");
       if (args[0] == "join") {
-        let sql = `SELECT Id, Guild_id FROM Channels WHERE Code = ?`;
+        let sql = `SELECT Name, Id, User_id, Guild_id FROM Channels WHERE Code = ?`;
         let values = [args[1]];
   
         con.query(sql, values, (err, result) => {
@@ -65,6 +65,7 @@ client.on('message', msg => {
         } else {
           msg.channel.send('A group with that code wasn\'t found please check that you typed the code correctly, if you are sure it\'s a bug please report it to me (sveti404#3122)');
         }
+        msg.channel.send("You have joined a group with the name of " + result[0].Name);
         });
       }
     }
@@ -102,7 +103,7 @@ client.on('message', msg => {
     }
     // Joining groups
     if (args[0].toLowerCase() == "join" && msg.channel.type != 'dm') {
-      let sql = `SELECT Id FROM Channels WHERE Code = ?`;
+      let sql = `SELECT Name, Id, User_id, Guild_id FROM Channels WHERE Code = ?`;
       let values = [args[1]];
       con.query(sql, values, (err, result) => {
         if (err) throw err;
@@ -116,6 +117,7 @@ client.on('message', msg => {
       } else {
         msg.channel.send('A group with that code wasn\'t found please check that you typed the code correctly, if you are sure it\'s a bug please report it to me (sveti404#3122)');
       }
+      msg.channel.send("You have joined a group with the name of " + result[0].Name);
       });
     }
   }
